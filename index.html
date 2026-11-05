@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caderno de Campo - Monitoramento Paisagismo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#173f2b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Caderno PL">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+/* Caderneta de bolso: uma coluna, alvos grandes para o polegar, navegação fixa embaixo. */
+:root{
+  --bg:#f3f6f2; --surface:#ffffff; --ink:#1b2a22; --muted:#5d6e64; --line:#d6e0d8;
+  --accent:#1f5c3d; --accent-soft:#e1efe5;
+  --hero:#173f2b; --hero-ink:#f1f7f2; --hero-soft:rgba(255,255,255,.14);
+  --ma:#1f7a4a; --br:#2a7d86; --ex:#b06a12; --inv:#b3322b; --ni:#6b6f7a;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111814; --surface:#18221c; --ink:#e4ede6; --muted:#9db0a3; --line:#2b3a31;
+    --accent:#6cc394; --accent-soft:#1f3328;
+    --hero:#0f2a1c; --hero-ink:#e4ede6; --hero-soft:rgba(255,255,255,.08);
+    --ma:#6cc394; --br:#6cc3cc; --ex:#e3a24a; --inv:#ef7d74; --ni:#a5a9b3;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111814; --surface:#18221c; --ink:#e4ede6; --muted:#9db0a3; --line:#2b3a31;
+  --accent:#6cc394; --accent-soft:#1f3328;
+    --hero:#0f2a1c; --hero-ink:#e4ede6; --hero-soft:rgba(255,255,255,.08);
+  --ma:#6cc394; --br:#6cc3cc; --ex:#e3a24a; --inv:#ef7d74; --ni:#a5a9b3;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--body);-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:560px;margin:0 auto;padding:0 16px 96px;display:flex;flex-direction:column;gap:16px}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 0 10px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.brand{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+h1{font:700 20px/1.1 var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h2{font:700 17px/1.2 var(--display);margin:0;text-wrap:balance}
+h3{font:600 12px/1.2 var(--body);margin:0;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.sync{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.ok{background:var(--ma)} .dot.warn{background:var(--ex)} .dot.bad{background:var(--inv)}
+.camp{display:flex;gap:8px;align-items:center}
+.camp select{flex:1;min-width:0}
+select,input[type=text],input[type=number],input[type=search],input[type=date],textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px}
+textarea{min-height:64px;resize:vertical}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.lbl{font-size:13px;font-weight:600;color:var(--muted)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.chips.wrap{flex-wrap:wrap;overflow:visible}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;min-height:40px;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+.chip.add{border-style:dashed;color:var(--accent)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 14px;min-height:44px;cursor:pointer;font-weight:500;text-align:center}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+.btn.small{min-height:34px;padding:6px 10px;font-size:13px}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--inv)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.big{width:100%;min-height:52px;font-size:16px}
+.row{display:flex;gap:8px;align-items:center}
+.row > .grow{flex:1;min-width:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;border-radius:6px;padding:2px 7px;border:1px solid currentColor;white-space:nowrap}
+.t-ma{color:var(--ma)} .t-br{color:var(--br)} .t-ex{color:var(--ex)} .t-ni{color:var(--ni)} .t-inv{color:var(--inv)} .t-ink{color:var(--ink)}
+.sp{font-style:italic;color:var(--muted);font-size:13px}
+.list{display:flex;flex-direction:column}
+.item{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.item .txt{flex:1;min-width:0}
+.item .nm{font-weight:600;overflow-wrap:anywhere}
+.meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px;align-items:center}
+.pick{width:100%;text-align:left;background:none;border:0;padding:0;cursor:pointer}
+.sel{border:1.5px solid var(--accent);background:var(--accent-soft);border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:center}
+.hint{font-size:13px;color:var(--muted)}
+.empty{font-size:14px;color:var(--muted);padding:6px 0;margin:0}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumb{position:relative;width:76px;height:76px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--bg);padding:0;cursor:pointer}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .x{position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:24px;cursor:pointer;padding:0}
+.addphoto{display:flex;align-items:center;justify-content:center;width:76px;height:76px;border:1.5px dashed var(--accent);border-radius:10px;color:var(--accent);font-weight:600;font-size:13px;text-align:center;cursor:pointer;padding:4px}
+.addphoto input{position:absolute;width:1px;height:1px;opacity:0}
+.mini{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:0 0 auto;border:1px solid var(--line)}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.tile .n{font:700 26px/1 var(--display);font-variant-numeric:tabular-nums}
+.tile .k{font-size:12.5px;color:var(--muted);margin-top:4px}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line)}
+.bar span{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 6px;border-top:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:12px;border-top:0}
+td.num,th.num{text-align:right}
+.scroll{overflow-x:auto}
+pre{font:12px/1.5 var(--mono);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;max-height:160px;overflow:auto;margin:0;white-space:pre}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs .in{max-width:560px;width:100%;display:grid;grid-template-columns:repeat(4,1fr)}
+nav.tabs button{background:none;border:0;padding:10px 4px 12px;min-height:56px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);border-top:3px solid transparent}
+nav.tabs button[aria-current="page"]{color:var(--accent);border-top-color:var(--accent);font-weight:600}
+nav.tabs .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:600}
+.toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:9;max-width:calc(100% - 32px);box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.notice{border-left:3px solid var(--ex);background:var(--bg);padding:10px 12px;border-radius:8px;font-size:13.5px}
+.notice.ok{border-left-color:var(--ma)}
+.notice.bad{border-left-color:var(--inv)}
+.modal{position:fixed;inset:0;background:rgba(10,20,14,.5);display:flex;align-items:flex-end;justify-content:center;z-index:8;padding:16px}
+.modal .card{width:100%;max-width:520px;max-height:calc(100% - 16px);overflow:auto}
+.modal img.full{width:100%;border-radius:10px;display:block}
+[hidden]{display:none !important}
+/* Cabeçalho em faixa verde, com folhas desenhadas ao fundo */
+.hero{background:var(--hero);color:var(--hero-ink);position:relative;overflow:hidden}
+.hero .in{max-width:560px;margin:0 auto;padding:20px 16px 18px;display:flex;flex-direction:column;gap:14px;position:relative;z-index:1}
+.hero svg.leaves{position:absolute;right:-30px;top:-20px;width:220px;height:220px;opacity:.16;z-index:0}
+.hero .over{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.8;font-weight:600}
+.hero h1{color:var(--hero-ink);font-size:28px}
+.hero .brand{align-items:flex-start}
+.hero .sub{font:500 16px/1.2 var(--display);opacity:.9;margin-top:2px}
+.hero .bar2{display:flex;gap:8px;align-items:center}
+.hero select{background:var(--hero-soft);color:var(--hero-ink);border:1px solid rgba(255,255,255,.25);font-weight:600}
+.hero select option{color:#1b2a22}
+.hero .btn{white-space:nowrap;background:var(--hero-soft);color:var(--hero-ink);border-color:rgba(255,255,255,.25)}
+.hero .sync{color:var(--hero-ink);opacity:.85}
+.step{display:flex;align-items:center;gap:8px}
+.step b{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;flex:0 0 auto}
+.step .lbl{font-size:14px;color:var(--ink)}
+.step .btn{margin-left:auto}
+.formcard{gap:18px;padding:16px}
+.formcard .field + .field, .formcard .two{padding-top:16px;border-top:1px dashed var(--line)}
+nav.tabs svg{display:block;margin:0 auto 3px;width:22px;height:22px}
+.card{box-shadow:0 1px 2px rgba(20,40,28,.05)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <svg class="leaves" viewBox="0 0 200 200" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3"><path d="M100 190C100 120 60 70 20 40c50 0 90 40 80 150z"/><path d="M100 190c0-60 30-110 80-140-10 60-40 110-80 140z"/><path d="M100 190V60"/><path d="M100 120c-20-20-40-40-60-60M100 140c25-25 45-45 70-70"/></g></svg>
+  <div class="in">
+    <div class="brand">
+      <div>
+        <div class="over">Pousada Literária</div>
+        <h1>Caderno de campo</h1>
+        <div class="sub">Monitoramento Paisagismo</div>
+      </div>
+      <span class="sync"><span class="dot" id="stDot"></span><span id="stTxt">abrindo…</span></span>
+    </div>
+    <div class="bar2">
+      <label class="over" for="campSel" style="white-space:nowrap">Campanha</label>
+      <select id="campSel"></select>
+      <button class="btn small" id="newCampBtn" type="button">+ Nova</button>
+    </div>
+  </div>
+</header>
+<div class="app" style="padding-top:16px">
+  <div class="notice bad" id="storageWarn" hidden>Este aparelho não permitiu guardar dados nesta página. Os registros ficam só enquanto ela estiver aberta: exporte antes de fechar.</div>
+
+  <!-- REGISTRAR -->
+  <section id="v-registrar" class="view" style="display:flex;flex-direction:column;gap:16px">
+    <div class="card formcard">
+      <div class="field">
+        <div class="step"><b>1</b><span class="lbl" id="setorLbl">Local</span><button type="button" class="btn small" id="addSetor2">+ Novo local</button></div>
+        <div class="chips wrap" id="setorChips" style="max-height:148px;overflow-y:auto;padding:2px 0" role="group" aria-labelledby="setorLbl"></div>
+      </div>
+
+      <div class="field">
+        <div class="step"><b>2</b><label class="lbl" for="spSearch">Planta</label></div>
+        <div id="spSelected" hidden></div>
+        <div id="spPicker">
+          <input type="search" id="spSearch" placeholder="Nome popular ou científico" autocomplete="off">
+          <div class="list" id="spResults"></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="step"><b>3</b><span class="lbl" id="abLbl">Indivíduos (aproximado)</span></div>
+        <div class="chips wrap" id="abChips" role="group" aria-labelledby="abLbl"></div>
+        <div class="row">
+          <label class="hint" for="contagem" style="white-space:nowrap">ou contagem exata</label>
+          <input type="number" id="contagem" inputmode="numeric" min="0" step="1" placeholder="nº" style="max-width:110px">
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="step"><b>4</b><span class="lbl" id="acLbl">Precisa substituir?</span></div>
+        <div class="chips wrap" id="acChips" role="group" aria-labelledby="acLbl"></div>
+      </div>
+
+      <div class="field">
+        <div class="step"><b>5</b><span class="lbl">Fotos</span></div>
+        <div class="thumbs" id="formThumbs"></div>
+        <span class="hint">O nome da planta, o local e a data são escritos na foto ao salvar.</span>
+      </div>
+
+      <div class="two">
+        <div class="field"><label class="lbl" for="dataReg">Data</label><input type="date" id="dataReg"></div>
+        <div class="field"><label class="lbl" for="obs">Observação</label><input type="text" id="obs" placeholder="Opcional"></div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" id="cancelEdit" type="button" hidden>Cancelar</button>
+        <button class="btn danger" id="delBtn" type="button" hidden>Excluir</button>
+        <button class="btn primary big grow" id="saveBtn" type="button">Salvar registro</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row"><h2 class="grow" id="pendTitle">Esperadas neste local</h2><span class="hint" id="pendCount"></span></div>
+      <p class="hint" style="margin:0">Espécies associadas a este local no cadastro ou em campanhas anteriores, ainda sem registro nesta campanha. Toque no nome para registrar ou marque direto como ausente.</p>
+      <div class="list" id="pendList"></div>
+    </div>
+  </section>
+
+  <!-- REGISTROS -->
+  <section id="v-registros" class="view" hidden style="flex-direction:column;gap:16px">
+    <div class="card">
+      <div class="row"><h2 class="grow">Registros da campanha</h2><span class="hint" id="regCount"></span></div>
+      <input type="search" id="regFilter" placeholder="Filtrar por planta ou local">
+      <div id="regList"></div>
+    </div>
+  </section>
+
+  <!-- RESUMO -->
+  <section id="v-resumo" class="view" hidden style="flex-direction:column;gap:16px"><div id="resumoBody" style="display:flex;flex-direction:column;gap:16px"></div></section>
+
+  <!-- EXPORTAR -->
+  <section id="v-exportar" class="view" hidden style="flex-direction:column;gap:16px"><div id="exportBody" style="display:flex;flex-direction:column;gap:16px"></div></section>
+</div>
+
+<nav class="tabs" aria-label="Seções">
+  <div class="in">
+    <button type="button" data-view="registrar" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20V9"/><path d="M12 13c-3 0-5-2-6-5 3 0 5 1 6 5zM12 11c1-4 3-5 6-5-1 3-3 5-6 5z"/><path d="M6 20h12"/></svg>Registrar</button>
+    <button type="button" data-view="registros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>Registros<span class="badge" id="tabBadge">0</span></button>
+    <button type="button" data-view="resumo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Resumo</button>
+    <button type="button" data-view="exportar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Exportar</button>
+  </div>
+</nav>
+
+<div class="modal" id="modal" hidden><div class="card" id="modalCard"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+
+/* Cadastro de espécies da aba "Espécies e campanhas" (linhas 5 a 92), com o histórico por campanha. */
+const CATALOGO = [{"id": "1", "ordem": 1, "popular": "Xanadu", "cientifico": "Thaumatophyllum xanadu", "familia": "Araceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Herbácea", "setores": "Canteiro SPA", "historico": {"jul/2025": "2 a 5", "mar/2026": "2 a 5"}, "linha": 5}, {"id": "2", "ordem": 2, "popular": "Antúrio", "cientifico": "Anthurium andraeanum", "familia": "Araceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "Corredor", "historico": {"jul/2025": "6 a 20", "mar/2026": "Ausente"}, "linha": 6}, {"id": "3", "ordem": 3, "popular": "Bromélia-compacta", "cientifico": "Neoregelia compacta", "familia": "", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Epífita", "setores": "Corredor", "historico": {"jul/2025": "mais de 100", "mar/2026": "mais de 100"}, "linha": 7}, {"id": "4", "ordem": 4, "popular": "Curgulito", "cientifico": "Molineria capitulata", "familia": "Hypoxidaceae", "origem": "Exótica", "invasora": "Sim", "habito": "Herbácea", "setores": "Corredor", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 8}, {"id": "5", "ordem": 5, "popular": "Gengibre-concha", "cientifico": "Alpinia zerumbet", "familia": "Zingiberaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "Corredor", "historico": {"jul/2025": "2 a 5", "mar/2026": "2 a 5"}, "linha": 9}, {"id": "6", "ordem": 6, "popular": "Lírio-da-paz", "cientifico": "Spathiphyllum wallisii", "familia": "Araceae", "origem": "Exótica", "invasora": "Sim", "habito": "Herbáceo", "setores": "Corredor", "historico": {"jul/2025": "21 a 100", "mar/2026": "Ausente"}, "linha": 10}, {"id": "7", "ordem": 7, "popular": "Pássaro-de-fogo", "cientifico": "Heliconia bihai", "familia": "Heliconiaceae", "origem": "Exótica", "invasora": "Não", "habito": "", "setores": "Corredor (8 indivíduos); Livraria das Marés (20 indivíduos)", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 11}, {"id": "8", "ordem": 8, "popular": "Ciclantus", "cientifico": "Cyclanthus bipartitus", "familia": "Cyclanthaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "Corredor 1 (reta do estacionamento até a academia)", "historico": {"jul/2025": "mais de 100", "mar/2026": "mais de 100"}, "linha": 12}, {"id": "9", "ordem": 9, "popular": "Lírio-da-paz-gigante", "cientifico": "Spathiphyllum cannifolium", "familia": "", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Herbáceo", "setores": "Corredor 1 (reta do estacionamento até a academia)", "historico": {"jul/2025": "6 a 20", "mar/2026": "Ausente"}, "linha": 13}, {"id": "10", "ordem": 10, "popular": "Maranta charuto", "cientifico": "Calathea lutea", "familia": "Marantaceae", "origem": "Nativa Brasil (outro domínio)", "invasora": "Não", "habito": "Herbácea", "setores": "Corredor 1 (reta do estacionamento até a academia)", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 14}, {"id": "11", "ordem": 11, "popular": "Maranta-cinza", "cientifico": "Ctenanthe setosa", "familia": "Marantaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "", "setores": "Corredor 1 (reta do estacionamento até a academia)", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 15}, {"id": "12", "ordem": 12, "popular": "Trapoeraba", "cientifico": "Tradescantia zebrina", "familia": "Commelinaceae", "origem": "Exótica", "invasora": "Sim", "habito": "", "setores": "Corredor 1 (reta do estacionamento até a academia)", "historico": {"jul/2025": "mais de 100", "mar/2026": "mais de 100"}, "linha": 16}, {"id": "13", "ordem": 13, "popular": "Philodendron", "cientifico": "Philodendron melinonii", "familia": "Araceae", "origem": "Nativa Brasil (outro domínio)", "invasora": "Não", "habito": "Herbácea", "setores": "Corredor; Vilas", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 17}, {"id": "14", "ordem": 14, "popular": "Monstera-do-amazonas", "cientifico": "Monstera adansonii", "familia": "Araceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Herbácea", "setores": "Debaixo das escadas", "historico": {"jul/2025": "Presente (s/ contagem)", "mar/2026": "Presente (s/ contagem)"}, "linha": 18}, {"id": "15", "ordem": 15, "popular": "Marata pena-de-pavão", "cientifico": "Maranta leuconeura", "familia": "Marantaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Herbácea", "setores": "Entrada SPA", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 19}, {"id": "16", "ordem": 16, "popular": "Peperomia", "cientifico": "Peperomia obtusifolia", "familia": "Piperaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "", "setores": "Escada piscina", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 20}, {"id": "17", "ordem": 17, "popular": "Amoreira", "cientifico": "Morus nigra", "familia": "Moraceae", "origem": "Exótica", "invasora": "Não", "habito": "Arbóreo", "setores": "Estacionamento", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 21}, {"id": "18", "ordem": 18, "popular": "Bananeira", "cientifico": "Musa sp.", "familia": "Musaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "Estacionamento", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 22}, {"id": "19", "ordem": 19, "popular": "Begonia", "cientifico": "Begonia sp.", "familia": "Begoniaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Herbácea", "setores": "Estacionamento", "historico": {"jul/2025": "1", "mar/2026": "Ausente"}, "linha": 23}, {"id": "20", "ordem": 20, "popular": "Cacto-macarrão", "cientifico": "Rhipsalis cereuscula", "familia": "Cactaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Trepadeira", "setores": "Estacionamento", "historico": {"jul/2025": "2 a 5", "mar/2026": "2 a 5"}, "linha": 24}, {"id": "21", "ordem": 21, "popular": "Dracena-verde", "cientifico": "Dracena sp", "familia": "Asparagaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbáceo", "setores": "Estacionamento", "historico": {"jul/2025": "2 a 5", "mar/2026": "Ausente"}, "linha": 25}, {"id": "22", "ordem": 22, "popular": "Samambaia chinesa", "cientifico": "Pteris vittata", "familia": "Pteridaceae", "origem": "Exótica", "invasora": "Não", "habito": "", "setores": "Estacionamento", "historico": {"jul/2025": "Presente (s/ contagem)", "mar/2026": "Presente (s/ contagem)"}, "linha": 26}, {"id": "23", "ordem": 23, "popular": "Samambaia-prata", "cientifico": "Pteris ensiformis", "familia": "Pteridaceae", "origem": "Exótica", "invasora": "Não", "habito": "Epífita", "setores": "Estacionamento", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 27}, {"id": "24", "ordem": 24, "popular": "Abacateiro", "cientifico": "Persea americana", "familia": "Lauraceae", "origem": "Exótica", "invasora": "Não", "habito": "Arbóreo", "setores": "Estacionamento lado direito", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 28}, {"id": "25", "ordem": 25, "popular": "Bambu de jardim", "cientifico": "Sasa masamuneana", "familia": "Poaceae", "origem": "Exótica", "invasora": "Não", "habito": "", "setores": "Estacionamento lado direito", "historico": {"jul/2025": "Presente (s/ contagem)", "mar/2026": "Presente (s/ contagem)"}, "linha": 29}, {"id": "26", "ordem": 26, "popular": "Cacau", "cientifico": "Theobroma cacao", "familia": "Malvaceae", "origem": "Nativa Brasil (outro domínio)", "invasora": "Não", "habito": "Arbóreo", "setores": "Estacionamento lado direito", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 30}, {"id": "27", "ordem": 27, "popular": "Cica", "cientifico": "Cycas revoluta", "familia": "Cycadaceae", "origem": "Exótica", "invasora": "Não", "habito": "", "setores": "Estacionamento lado direito", "historico": {"jul/2025": "2 a 5", "mar/2026": "2 a 5"}, "linha": 31}, {"id": "28", "ordem": 28, "popular": "Jiboia", "cientifico": "Epipremnum pinnatum", "familia": "Araceae", "origem": "Exótica", "invasora": "Sim", "habito": "Herbácea", "setores": "Estacionamento lado direito", "historico": {"jul/2025": "21 a 100", "mar/2026": "2 a 5"}, "linha": 32}, {"id": "29", "ordem": 29, "popular": "Palmeira-leque", "cientifico": "Licuala grandis", "familia": "Arecaceae", "origem": "Exótica", "invasora": "Não", "habito": "Arbustiva", "setores": "Estacionamento lado direito", "historico": {"jul/2025": "2 a 5", "mar/2026": "2 a 5"}, "linha": 33}, {"id": "30", "ordem": 30, "popular": "Syngonium", "cientifico": "Syngonium angustatum", "familia": "Araceae", "origem": "Nativa Brasil (outro domínio)", "invasora": "Sim", "habito": "", "setores": "Estacionamento lado direito", "historico": {"jul/2025": "mais de 100", "mar/2026": "mais de 100"}, "linha": 34}, {"id": "31", "ordem": 31, "popular": "Íris-da-praia", "cientifico": "Neomarica candida", "familia": "Iridaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Herbácea", "setores": "Estacionamento lado direito", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 35}, {"id": "32", "ordem": 32, "popular": "Congéia", "cientifico": "Congea tomentosa", "familia": "Lamiaceae", "origem": "Exótica", "invasora": "Não", "habito": "Liana", "setores": "Estacionamento telhados", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 36}, {"id": "33", "ordem": 33, "popular": "Pau d'água", "cientifico": "Dracaena fragrans", "familia": "Asparagaceae", "origem": "Exótica", "invasora": "Sim", "habito": "Herbáceo", "setores": "Estacionamento; Corredor", "historico": {"jul/2025": "2 a 5", "mar/2026": "Ausente"}, "linha": 37}, {"id": "34", "ordem": 34, "popular": "Primavera", "cientifico": "Bougainvillea sp.", "familia": "Nyctaginaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Arbustivo", "setores": "Estacionamento; Jardim central; Piscina", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 38}, {"id": "35", "ordem": 35, "popular": "Areca bambu", "cientifico": "Dypsis lutescens", "familia": "Arecaceae", "origem": "Exótica", "invasora": "Sim", "habito": "Arbustivo", "setores": "Jardim central", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 39}, {"id": "36", "ordem": 36, "popular": "Helicônia", "cientifico": "Heliconia psittacorum", "familia": "Heliconiaceae", "origem": "Nativa Brasil (outro domínio)", "invasora": "Não", "habito": "Herbácea", "setores": "Jardim central", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 40}, {"id": "37", "ordem": 37, "popular": "Bromélia imperial", "cientifico": "Alcantarea imperialis", "familia": "Bromeliaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Herbácea", "setores": "Jardim central, corredor", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 41}, {"id": "38", "ordem": 38, "popular": "Rhipsalis", "cientifico": "Lepismium warmingianum", "familia": "Cactaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "", "setores": "Paineira", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 42}, {"id": "39", "ordem": 39, "popular": "Bromélia nativa", "cientifico": "Tillandsia stricta", "familia": "Bromeliaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Epífita", "setores": "Piscina", "historico": {"jul/2025": "2 a 5", "mar/2026": "2 a 5"}, "linha": 43}, {"id": "40", "ordem": 40, "popular": "Coqueiros", "cientifico": "Cocos nucifera", "familia": "Arecaceae", "origem": "Exótica", "invasora": "Não", "habito": "Arbóreo", "setores": "Piscina", "historico": {"jul/2025": "2 a 5", "mar/2026": "2 a 5"}, "linha": 44}, {"id": "41", "ordem": 41, "popular": "grama-amendoim", "cientifico": "Arachis repens", "familia": "Fabaceae-Papilionoidae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Herbácea", "setores": "Piscina", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 45}, {"id": "42", "ordem": 42, "popular": "Mangueira", "cientifico": "Mangifera indica", "familia": "Anacardiaceae", "origem": "Exótica", "invasora": "Não", "habito": "Arbóreo", "setores": "Piscina", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 46}, {"id": "43", "ordem": 43, "popular": "Moreia amarela", "cientifico": "Dietes bicolor", "familia": "Iridaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "Piscina", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 47}, {"id": "44", "ordem": 44, "popular": "Orquídea chuva de ouro", "cientifico": "Gomesa varicosa", "familia": "Orchidaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Epífita", "setores": "Piscina", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 48}, {"id": "45", "ordem": 45, "popular": "Palmeira Fênix", "cientifico": "Phoenix roebelenii", "familia": "Arecaceae", "origem": "Exótica", "invasora": "Não", "habito": "Arbustivo", "setores": "Piscina", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 49}, {"id": "46", "ordem": 46, "popular": "Pimenta", "cientifico": "Capsicum sp", "familia": "Solanaceae", "origem": "Nativa Brasil (outro domínio)", "invasora": "Não", "habito": "Herbácea", "setores": "Quintal das Letras", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 50}, {"id": "47", "ordem": 47, "popular": "Moreia", "cientifico": "Dianella caerulea", "familia": "Asphodelaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbáceo", "setores": "Recepção", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 51}, {"id": "48", "ordem": 48, "popular": "Paineira rosa", "cientifico": "Ceiba speciosa", "familia": "Malvaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Arbóreo", "setores": "Recepção", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 52}, {"id": "49", "ordem": 49, "popular": "Palmeira-de-macarthur", "cientifico": "Ptychosperma macarthurii", "familia": "Arecaceae", "origem": "Exótica", "invasora": "Sim", "habito": "", "setores": "Recepção, Vilas e Corredor", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 53}, {"id": "50", "ordem": 50, "popular": "Manjericão roxo", "cientifico": "Ocimum basilicum \"purpurea\"", "familia": "Lamiaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "Restaurante", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 54}, {"id": "51", "ordem": 51, "popular": "Bromélia guzmania", "cientifico": "Guzmania lingulata", "familia": "Bromeliaceae", "origem": "Nativa Brasil (outro domínio)", "invasora": "Não", "habito": "Epífita", "setores": "Salão de eventos (em vasos), suíte Paraty, SPA Recepção", "historico": {"jul/2025": "2 a 5", "mar/2026": "2 a 5"}, "linha": 55}, {"id": "52", "ordem": 52, "popular": "Avenca", "cientifico": "Adiantum capillus-veneris", "familia": "Pteridaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Epífita", "setores": "SPA", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 56}, {"id": "53", "ordem": 53, "popular": "Costela de Adão", "cientifico": "Monstera deliciosa", "familia": "Araceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "SPA", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 57}, {"id": "54", "ordem": 54, "popular": "Dendezeiro", "cientifico": "Elaeis guineensis", "familia": "Arecaceae", "origem": "Exótica", "invasora": "Sim", "habito": "", "setores": "SPA", "historico": {"jul/2025": "1", "mar/2026": "Ausente"}, "linha": 58}, {"id": "55", "ordem": 55, "popular": "Kohleria amabilis", "cientifico": "Kohleria amabilis", "familia": "Gesneriaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "SPA", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 59}, {"id": "56", "ordem": 56, "popular": "Peperomia", "cientifico": "Peperomia scandens", "familia": "Piperaceae", "origem": "Nativa Brasil (outro domínio)", "invasora": "Não", "habito": "Herbácea", "setores": "SPA", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 60}, {"id": "57", "ordem": 57, "popular": "Pleomele", "cientifico": "Dracaena reflexa", "familia": "Asparagaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "SPA", "historico": {"jul/2025": "1", "mar/2026": "Ausente"}, "linha": 61}, {"id": "58", "ordem": 58, "popular": "Tapete", "cientifico": "Episcia cupreata", "familia": "Gesneriaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "SPA", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 62}, {"id": "59", "ordem": 59, "popular": "Grumixama", "cientifico": "Eugenia brasiliensis", "familia": "Myrtaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Arbóreo", "setores": "SPA vasos, vaso café da manhã", "historico": {"jul/2025": "2 a 5", "mar/2026": "2 a 5"}, "linha": 63}, {"id": "60", "ordem": 60, "popular": "Alpinia purpurata", "cientifico": "Alpinia purpurata", "familia": "Zingiberaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "SPA; Piscina", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 64}, {"id": "61", "ordem": 61, "popular": "Lágrima de Cristo", "cientifico": "Clerodendrum thomsoniae", "familia": "Lamiaceae", "origem": "Exótica", "invasora": "Não", "habito": "Liana", "setores": "SPA; Piscina", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 65}, {"id": "62", "ordem": 62, "popular": "Chamaedorea-bambu", "cientifico": "Chamaedorea seifrizii", "familia": "Arecaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "UHs", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 66}, {"id": "63", "ordem": 63, "popular": "Araçá", "cientifico": "Psidium cattleyanum", "familia": "Myrtaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Arbustivo", "setores": "Vaso café da manhã", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 67}, {"id": "64", "ordem": 64, "popular": "Goiaba", "cientifico": "Psidium guajava", "familia": "Myrtaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Arbóreo", "setores": "Vaso café da manhã", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 68}, {"id": "65", "ordem": 65, "popular": "Alecrim", "cientifico": "Salvia rosmarinus", "familia": "Lamiaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "Vaso QL", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 69}, {"id": "66", "ordem": 66, "popular": "Canela-da-Índia", "cientifico": "Cinnamomum zeylanicum", "familia": "Lauraceae", "origem": "Exótica", "invasora": "Não", "habito": "Arbóreo", "setores": "Vaso QL", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 70}, {"id": "67", "ordem": 67, "popular": "Palmeira juçara", "cientifico": "Euterpe edulis", "familia": "Arecaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Arbóreo", "setores": "Vila Cajaíba + em frente a recepção", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 71}, {"id": "68", "ordem": 68, "popular": "Jabuticabeira", "cientifico": "Plinia cauliflora", "familia": "Myrtaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Arbóreo", "setores": "Vila Cajaíba, área Vilas, QL vaso", "historico": {"jul/2025": "2 a 5", "mar/2026": "2 a 5"}, "linha": 72}, {"id": "69", "ordem": 69, "popular": "Pacová", "cientifico": "Philodendron martianum", "familia": "Araceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Herbácea", "setores": "Vila Paraty vasos, Vila aurora vaso, subida rampa em frente ao salão de leitura", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 73}, {"id": "70", "ordem": 70, "popular": "Dinheiro-em-penca", "cientifico": "Tradescantia cymbispatha", "familia": "Commelinaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Herbácea", "setores": "Vilas", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 74}, {"id": "71", "ordem": 71, "popular": "Pitangueira", "cientifico": "Eugenia uniflora", "familia": "Myrtaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Arbóreo", "setores": "Vilas; SPA", "historico": {"jul/2025": "2 a 5", "mar/2026": "2 a 5"}, "linha": 75}, {"id": "72", "ordem": 72, "popular": "Manacá-de-cheiro", "cientifico": "Brunfelsia uniflora", "familia": "Solanaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Arbustivo", "setores": "Villas e piscina", "historico": {"jul/2025": "2 a 5", "mar/2026": "2 a 5"}, "linha": 76}, {"id": "73", "ordem": 73, "popular": "Bromelia fireball", "cientifico": "Neoregelia fireball", "familia": "Bromeliaceae", "origem": "Nativa Brasil (outro domínio)", "invasora": "Não", "habito": "Epífita", "setores": "", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 77}, {"id": "74", "ordem": 74, "popular": "Bromélia-pacta", "cientifico": "Neoregelia sp.", "familia": "", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "", "setores": "", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 78}, {"id": "75", "ordem": 75, "popular": "Cana-do-brejo", "cientifico": "Costus spicatus Jacq.", "familia": "Zingiberaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "", "setores": "", "historico": {"jul/2025": "Ausente", "mar/2026": "Presente (s/ contagem)"}, "linha": 79}, {"id": "77", "ordem": 76, "popular": "Figueira Branca", "cientifico": "Ficus cestrifolia", "familia": "Moraceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Arbóreo", "setores": "", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 80}, {"id": "78", "ordem": 77, "popular": "Flor de cera", "cientifico": "Hoya carnosa", "familia": "", "origem": "Exótica", "invasora": "Não", "habito": "", "setores": "", "historico": {"jul/2025": "1", "mar/2026": "Ausente"}, "linha": 81}, {"id": "79", "ordem": 78, "popular": "Grama Esmeralda", "cientifico": "Zoysia Japônica", "familia": "Poaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "", "historico": {"jul/2025": "Presente (s/ contagem)", "mar/2026": "Presente (s/ contagem)"}, "linha": 82}, {"id": "80", "ordem": 79, "popular": "Grama preta", "cientifico": "Ophiopogon japonicus", "familia": "Asparagaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "", "historico": {"jul/2025": "Presente (s/ contagem)", "mar/2026": "Presente (s/ contagem)"}, "linha": 83}, {"id": "81", "ordem": 80, "popular": "Grama São Carlos", "cientifico": "Axonopus compressus", "familia": "Poaceae", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Herbácea", "setores": "", "historico": {"jul/2025": "Presente (s/ contagem)", "mar/2026": "Presente (s/ contagem)"}, "linha": 84}, {"id": "83", "ordem": 81, "popular": "Kalanchoe", "cientifico": "Kalanchoe delagoensis", "familia": "Crassulaceae", "origem": "Exótica", "invasora": "Sim", "habito": "", "setores": "", "historico": {"jul/2025": "Presente (s/ contagem)", "mar/2026": "Presente (s/ contagem)"}, "linha": 85}, {"id": "84", "ordem": 82, "popular": "Lantana", "cientifico": "Lantana camara", "familia": "Verbenaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 86}, {"id": "85", "ordem": 83, "popular": "Moreia branca", "cientifico": "Dietes iridioides", "familia": "Iridaceae", "origem": "Exótica", "invasora": "Não", "habito": "Herbácea", "setores": "", "historico": {"jul/2025": "6 a 20", "mar/2026": "6 a 20"}, "linha": 87}, {"id": "87", "ordem": 84, "popular": "Orquídea borboleta", "cientifico": "Phalaenopsis sp.", "familia": "Orchidaceae", "origem": "Exótica", "invasora": "Não", "habito": "", "setores": "", "historico": {"jul/2025": "Presente (s/ contagem)", "mar/2026": "Presente (s/ contagem)"}, "linha": 88}, {"id": "88", "ordem": 85, "popular": "Orquídea híbrida", "cientifico": "Phalaenopsis amabilis", "familia": "Orchidaceae", "origem": "Exótica", "invasora": "Não", "habito": "", "setores": "", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 89}, {"id": "89", "ordem": 86, "popular": "Orquídea olho de boneca", "cientifico": "Catasetum luridum", "familia": "", "origem": "Nativa Mata Atlântica", "invasora": "Não", "habito": "Epífita", "setores": "", "historico": {"jul/2025": "1", "mar/2026": "1"}, "linha": 90}, {"id": "90", "ordem": 87, "popular": "Rafis", "cientifico": "Rhapis excelsa", "familia": "Arecaceae", "origem": "Exótica", "invasora": "Não", "habito": "Arbustivo", "setores": "", "historico": {"jul/2025": "21 a 100", "mar/2026": "21 a 100"}, "linha": 91}, {"id": "91", "ordem": 88, "popular": "Trapoeraba-roxa", "cientifico": "Tradescantia pallida", "familia": "Commelinaceae", "origem": "Exótica", "invasora": "Não", "habito": "", "setores": "", "historico": {"jul/2025": "Ausente", "mar/2026": "Presente (s/ contagem)"}, "linha": 92}];
+
+/* ---------- Domínio (espelha a aba "Listas") ---------- */
+const CLASSES = ["1","2 a 5","6 a 20","21 a 100","mais de 100","Presente (s/ contagem)","Ausente"];
+const CLASS_LOW = {"1":1,"2 a 5":2,"6 a 20":6,"21 a 100":21,"mais de 100":101};
+const ACOES = [["Manter","Não, manter"],["Substituir","Substituir"],["Retirar","Retirar"],["Avaliar","Avaliar depois"]];
+const ORIGENS = ["Nativa Mata Atlântica","Nativa Brasil (outro domínio)","Exótica","Não identificada"];
+const ORIG_SHORT = {"Nativa Mata Atlântica":["Nativa MA","t-ma"],"Nativa Brasil (outro domínio)":["Nativa BR","t-br"],"Exótica":["Exótica","t-ex"],"Não identificada":["Não ident.","t-ni"]};
+const ORIG_COLOR = {"Nativa Mata Atlântica":"var(--ma)","Nativa Brasil (outro domínio)":"var(--br)","Exótica":"var(--ex)","Não identificada":"var(--ni)"};
+const BASELINE = "mar/2026";
+const SETORES_BASE = ["Canteiro SPA","Corredor","Corredor 1","Debaixo das escadas","Entrada SPA","Entrada Vilas","Escada piscina","Estacionamento","Estacionamento lado direito","Estacionamento telhados","Jardim central","Livraria das Marés","Paineira","Piscina","Quintal das Letras","Recepção","Restaurante","Salão de eventos","SPA","UHs","Vaso café da manhã","Vaso QL","Vilas"];
+
+function classify(n){ if(n==null||isNaN(n)) return null; n=Math.round(n); if(n<=0) return "Ausente"; if(n===1) return "1"; if(n<=5) return "2 a 5"; if(n<=20) return "6 a 20"; if(n<=100) return "21 a 100"; return "mais de 100"; }
+function norm(s){ return (s||"").toString().normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim(); }
+function esc(s){ return (s==null?"":String(s)).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function slug(s){ return norm(s).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "x"; }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function pct(a,b){ return b? (100*a/b).toFixed(1).replace(".",",")+"%" : "—"; }
+function today(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function brDate(iso){ if(!iso) return ""; const [y,m,d]=iso.split("-"); return d+"/"+m+"/"+y; }
+function mb(n){ return (n/1048576).toFixed(n>10485760?0:1).replace(".",",")+" MB"; }
+
+/* ---------- Armazenamento no aparelho (IndexedDB), com reserva em memória ---------- */
+const Store = (function(){
+  let dbp=null, mem={kv:new Map(),registros:new Map(),fotos:new Map(),especies:new Map()}, ok=false;
+  function open(){
+    return new Promise((res)=>{
+      try{
+        const rq=indexedDB.open("caderneta-pl",1);
+        rq.onupgradeneeded=()=>{ const d=rq.result; ["registros","fotos","especies"].forEach(s=>{ if(!d.objectStoreNames.contains(s)) d.createObjectStore(s,{keyPath:"id"}); }); if(!d.objectStoreNames.contains("kv")) d.createObjectStore("kv"); };
+        rq.onsuccess=()=>{ ok=true; res(rq.result); };
+        rq.onerror=()=>res(null); rq.onblocked=()=>res(null);
+      }catch(e){ res(null); }
+    });
+  }
+  function tx(store,mode,fn){
+    return dbp.then(d=>{
+      if(!d){ const r=fn(null); return (r && typeof r==="object" && "result" in r) ? r.result : r; }
+      return new Promise((res,rej)=>{ try{ const t=d.transaction(store,mode); const r=fn(t.objectStore(store)); t.oncomplete=()=>res(r && typeof r==="object" && "result" in r ? r.result : r); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error); }catch(e){ rej(e); } });
+    });
+  }
+  return {
+    init(){ dbp=open(); return dbp.then(d=>!!d); },
+    get ok(){ return ok; },
+    all(store){ return tx(store,"readonly",s=>{ if(!s) return {result:Array.from(mem[store].values())}; return s.getAll(); }); },
+    get(store,id){ return tx(store,"readonly",s=>{ if(!s) return {result:mem[store].get(id)}; return s.get(id); }); },
+    put(store,obj,key){ return tx(store,"readwrite",s=>{ if(!s){ mem[store].set(key!==undefined?key:obj.id,obj); return {result:true}; } return key!==undefined? s.put(obj,key) : s.put(obj); }); },
+    del(store,id){ return tx(store,"readwrite",s=>{ if(!s){ mem[store].delete(id); return {result:true}; } return s.delete(id); }); }
+  };
+})();
+
+/* ---------- Estado ---------- */
+const S = {
+  especies:new Map(), campanhas:[], registros:new Map(), setoresCfg:SETORES_BASE.slice(),
+  camp:null, setor:null, view:"registrar",
+  form:{ esp:null, classe:null, acao:null, editId:null, novas:[], existentes:[], removidas:[] }
+};
+CATALOGO.forEach(e=>S.especies.set(e.id,e));
+
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>{t.hidden=true;},2800); }
+async function saveKv(k,v){ try{ await Store.put("kv",v,k); }catch(e){} }
+async function refreshStatus(){
+  const dot=document.getElementById("stDot"), txt=document.getElementById("stTxt");
+  if(!Store.ok){ dot.className="dot bad"; txt.textContent="sem armazenamento"; return; }
+  let t="salvo no aparelho";
+  try{ if(navigator.storage && navigator.storage.estimate){ const e=await navigator.storage.estimate(); if(e.usage!=null) t+=" · "+mb(e.usage); } }catch(e){}
+  dot.className="dot ok"; txt.textContent=t;
+}
+
+/* ---------- Derivações ---------- */
+function campRegs(camp){ const out=[]; S.registros.forEach(r=>{ if(r.campanha===camp) out.push(r); }); return out; }
+function setoresAll(){ const set=new Set(S.setoresCfg); S.registros.forEach(r=>{ if(r.setor) set.add(r.setor); }); return Array.from(set).sort((a,b)=>a.localeCompare(b,"pt-BR")); }
+function espLabel(e){ return e ? (e.popular || e.cientifico || "Sem nome") : "Sem nome"; }
+function espOf(r){ return (r.especieId && S.especies.get(r.especieId)) || {popular:r.nome,cientifico:r.cientifico,origem:r.origem}; }
+
+function aggregate(camp){
+  const by=new Map();
+  campRegs(camp).forEach(r=>{ const key=r.especieId||("livre:"+norm(r.nome)); if(!by.has(key)) by.set(key,{key,especieId:r.especieId,regs:[]}); by.get(key).regs.push(r); });
+  by.forEach(a=>{
+    const e=espOf(a.regs[0]); a.nome=espLabel(e); a.cientifico=e.cientifico||""; a.origem=e.origem||"Não identificada"; a.invasora=e.invasora||"";
+    const pres=a.regs.filter(r=>r.classe!=="Ausente");
+    if(!pres.length){ a.classe="Ausente"; a.total=0; }
+    else{
+      const counted=pres.filter(r=>r.classe!=="Presente (s/ contagem)");
+      if(!counted.length){ a.classe="Presente (s/ contagem)"; a.total=null; }
+      else{ let sum=0; counted.forEach(r=>{ sum+=(typeof r.contagem==="number")?r.contagem:(CLASS_LOW[r.classe]||0); }); a.total=sum; a.classe=classify(sum); }
+    }
+    a.setores=Array.from(new Set(pres.map(r=>r.setor))).join("; ");
+    a.acoes=Array.from(new Set(a.regs.map(r=>r.acao).filter(x=>x&&x!=="Manter")));
+  });
+  return by;
+}
+function originCounts(list){ const c={}; ORIGENS.forEach(o=>c[o]=0); list.forEach(x=>{ c[ORIGENS.includes(x.origem)?x.origem:"Não identificada"]++; }); return c; }
+function baselinePresent(){ const out=[]; S.especies.forEach(e=>{ const v=e.historico&&e.historico[BASELINE]; if(v && v!=="Ausente") out.push(e); }); return out; }
+function expectedIn(setor){
+  const ns=norm(setor), ids=new Set(); if(!ns) return [];
+  S.especies.forEach(e=>{ const parts=norm(e.setores).split(/[;,\n]| e /).map(x=>x.trim()).filter(Boolean); if(parts.some(p=>p===ns||p.startsWith(ns+" ")||p.startsWith(ns+"("))) ids.add(e.id); });
+  S.registros.forEach(r=>{ if(r.especieId && r.setor===setor && r.campanha!==S.camp && r.classe!=="Ausente") ids.add(r.especieId); });
+  const done=new Set(campRegs(S.camp).filter(r=>r.setor===setor&&r.especieId).map(r=>r.especieId));
+  return Array.from(ids).filter(id=>!done.has(id)).map(id=>S.especies.get(id)).filter(Boolean).sort((a,b)=>espLabel(a).localeCompare(espLabel(b),"pt-BR"));
+}
+
+/* ---------- Fotos: redução, carimbo e miniatura ---------- */
+async function toBitmap(blob){
+  if(window.createImageBitmap){ try{ return await createImageBitmap(blob,{imageOrientation:"from-image"}); }catch(e){} }
+  return await new Promise((res,rej)=>{ const u=URL.createObjectURL(blob), im=new Image(); im.onload=()=>{ res(im); }; im.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error("imagem")); }; im.src=u; });
+}
+function canvasBlob(cv,q){ return new Promise(res=>cv.toBlob(b=>res(b),"image/jpeg",q)); }
+async function resize(blob,max,q){
+  const bm=await toBitmap(blob); const w=bm.width,h=bm.height, k=Math.min(1,max/Math.max(w,h));
+  const cv=document.createElement("canvas"); cv.width=Math.round(w*k); cv.height=Math.round(h*k);
+  cv.getContext("2d").drawImage(bm,0,0,cv.width,cv.height); if(bm.close) bm.close();
+  return canvasBlob(cv,q);
+}
+let fontsReady=null;
+function loadFonts(){ if(!fontsReady){ fontsReady=Promise.all([document.fonts.load('600 40px "IBM Plex Sans"'),document.fonts.load('italic 400 40px "IBM Plex Sans"')]).catch(()=>{}); } return fontsReady; }
+function fitFont(ctx,text,weight,size,maxW,family){ let s=size; ctx.font=weight+" "+s+"px "+family; while(ctx.measureText(text).width>maxW && s>10){ s-=1; ctx.font=weight+" "+s+"px "+family; } return s; }
+/* Escreve na imagem: nome popular, nome científico, local e data, numa faixa no rodapé. */
+async function stamp(origBlob,info){
+  await loadFonts();
+  const bm=await toBitmap(origBlob); const W=bm.width,H=bm.height;
+  const cv=document.createElement("canvas"); cv.width=W; cv.height=H; const ctx=cv.getContext("2d");
+  ctx.drawImage(bm,0,0); if(bm.close) bm.close();
+  const fam='"IBM Plex Sans", "Segoe UI", Arial, sans-serif';
+  const base=Math.max(14,Math.round(Math.min(W,H)/22)), pad=Math.round(base*0.7), maxW=W-pad*2;
+  const l1=info.nome||"", l2=info.cientifico||"", l3=["Pousada Literária", info.local, info.data].filter(Boolean).join("  ·  ");
+  const s1=fitFont(ctx,l1,"600",base,maxW,fam), s2=l2?fitFont(ctx,l2,"italic 400",Math.round(base*0.8),maxW,fam):0, s3=fitFont(ctx,l3,"400",Math.round(base*0.8),maxW,fam);
+  const lh=1.3, bandH=Math.round(pad*1.6 + s1*lh + (l2?s2*lh:0) + s3*lh);
+  const g=ctx.createLinearGradient(0,H-bandH-pad*2,0,H); g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(0.25,"rgba(0,0,0,.55)"); g.addColorStop(1,"rgba(0,0,0,.72)");
+  ctx.fillStyle=g; ctx.fillRect(0,H-bandH-pad*2,W,bandH+pad*2);
+  ctx.fillStyle="#fff"; ctx.textBaseline="alphabetic"; ctx.shadowColor="rgba(0,0,0,.5)"; ctx.shadowBlur=Math.round(base/6);
+  let y=H-pad-(l2?s2*lh:0)-s3*lh - s1*0.3;
+  ctx.font="600 "+s1+"px "+fam; ctx.fillText(l1,pad,y);
+  if(l2){ y+=s2*lh; ctx.font="italic 400 "+s2+"px "+fam; ctx.fillText(l2,pad,y); }
+  y+=s3*lh; ctx.font="400 "+s3+"px "+fam; ctx.fillStyle="rgba(255,255,255,.92)"; ctx.fillText(l3,pad,y);
+  return canvasBlob(cv,0.88);
+}
+function photoName(r,i){ const e=espOf(r); return [r.data||today(), slug(r.setor), slug(espLabel(e))].join("_")+"_"+String(i+1).padStart(2,"0")+".jpg"; }
+const urlCache=new Map();
+function objUrl(id,blob){ if(urlCache.has(id)) return urlCache.get(id); const u=URL.createObjectURL(blob); urlCache.set(id,u); return u; }
+
+/* ---------- Cabeçalho ---------- */
+function renderCamp(){
+  const sel=document.getElementById("campSel");
+  const list=S.campanhas.slice().sort((a,b)=>(b.criadaEm||"").localeCompare(a.criadaEm||""));
+  if(!S.camp || !list.some(c=>c.nome===S.camp)) S.camp=list.length?list[0].nome:null;
+  sel.innerHTML = list.length? list.map(c=>`<option value="${esc(c.nome)}"${c.nome===S.camp?" selected":""}>${esc(c.nome)}</option>`).join("") : `<option value="">Crie uma campanha</option>`;
+}
+
+/* ---------- Registrar ---------- */
+function origTag(o){ const m=ORIG_SHORT[o]||ORIG_SHORT["Não identificada"]; return `<span class="tag ${m[1]}">${m[0]}</span>`; }
+function invTag(e){ return e && e.invasora==="Sim" ? `<span class="tag t-inv">invasora</span>` : ""; }
+function spRow(x,extra){ return `<div class="item"><button type="button" class="pick txt" data-esp="${esc(x.id)}"><div class="nm">${esc(espLabel(x))}</div><div class="meta"><span class="sp">${esc(x.cientifico||"")}</span>${origTag(x.origem)}${invTag(x)}</div></button>${extra||""}</div>`; }
+function renderSetores(){
+  const box=document.getElementById("setorChips");
+  box.innerHTML=setoresAll().map(s=>`<button type="button" class="chip" data-setor="${esc(s)}" aria-pressed="${s===S.setor}">${esc(s)}</button>`).join("")+`<button type="button" class="chip add" id="addSetor">+ novo local</button>`;
+  if(!renderSetores._done){ const cur=box.querySelector('[aria-pressed="true"]'); if(cur){ cur.scrollIntoView({block:"nearest",inline:"center"}); } renderSetores._done=true; }
+}
+function renderSpPicker(){
+  const selBox=document.getElementById("spSelected"), picker=document.getElementById("spPicker"), e=S.form.esp;
+  if(e){ selBox.hidden=false; picker.hidden=true;
+    selBox.innerHTML=`<div class="sel"><div style="flex:1;min-width:0"><div style="font-weight:600">${esc(espLabel(e))}</div><div class="meta"><span class="sp">${esc(e.cientifico||"")}</span>${origTag(e.origem)}${invTag(e)}</div></div><button type="button" class="btn small" id="spClear">Trocar</button></div>`; return; }
+  selBox.hidden=true; picker.hidden=false;
+  const raw=document.getElementById("spSearch").value.trim(), q=norm(raw), res=document.getElementById("spResults");
+  if(!q){ res.innerHTML=""; return; }
+  const hits=[]; S.especies.forEach(x=>{ if(norm(x.popular).includes(q)||norm(x.cientifico).includes(q)) hits.push(x); });
+  hits.sort((a,b)=>((norm(a.popular).startsWith(q)?0:1)-(norm(b.popular).startsWith(q)?0:1)) || espLabel(a).localeCompare(espLabel(b),"pt-BR"));
+  res.innerHTML=hits.slice(0,8).map(x=>spRow(x)).join("")+`<div class="item"><button type="button" class="btn small" id="newSpBtn">+ Planta fora do cadastro: “${esc(raw)}”</button></div>`;
+}
+function defaultAcao(e){ if(!e) return null; if(e.origem==="Nativa Mata Atlântica") return "Manter"; if(e.invasora==="Sim") return "Substituir"; return null; }
+function renderAb(){
+  document.getElementById("abChips").innerHTML=CLASSES.map(c=>`<button type="button" class="chip" data-classe="${esc(c)}" aria-pressed="${c===S.form.classe}">${c==="Presente (s/ contagem)"?"Presente, sem contar":esc(c)}</button>`).join("");
+  document.getElementById("acChips").innerHTML=ACOES.map(([v,l])=>`<button type="button" class="chip" data-acao="${v}" aria-pressed="${v===S.form.acao}">${l}</button>`).join("");
+}
+function renderThumbs(){
+  const box=document.getElementById("formThumbs");
+  const ex=S.form.existentes.filter(f=>!S.form.removidas.includes(f.id));
+  box.innerHTML = ex.map(f=>`<div class="thumb"><img alt="Foto registrada" src="${objUrl("t"+f.id,f.thumb)}"><button type="button" class="x" aria-label="Remover foto" data-rmold="${f.id}">×</button></div>`).join("")
+    + S.form.novas.map((f,i)=>`<div class="thumb"><img alt="Foto nova" src="${objUrl("n"+f.key,f.thumb)}"><button type="button" class="x" aria-label="Remover foto" data-rmnew="${i}">×</button></div>`).join("")
+    + `<label class="addphoto" for="fotoIn">+ Foto<input type="file" id="fotoIn" accept="image/*" multiple></label>`;
+  document.getElementById("fotoIn").addEventListener("change",onPhotos);
+}
+function renderPend(){
+  const list=document.getElementById("pendList");
+  document.getElementById("pendTitle").textContent = S.setor? "Esperadas em "+S.setor : "Esperadas neste local";
+  if(!S.setor){ list.innerHTML=`<p class="empty">Escolha um local acima.</p>`; document.getElementById("pendCount").textContent=""; return; }
+  const exp=expectedIn(S.setor);
+  document.getElementById("pendCount").textContent = exp.length? exp.length+" a verificar" : "";
+  list.innerHTML = exp.length? exp.map(e=>spRow(e,`<button type="button" class="btn small" data-ausente="${esc(e.id)}">Ausente</button>`)).join("") : `<p class="empty">Nada pendente aqui nesta campanha.</p>`;
+}
+function renderRegistrar(){
+  renderSetores(); renderSpPicker(); renderAb(); renderThumbs(); renderPend();
+  const ed=!!S.form.editId;
+  document.getElementById("saveBtn").textContent = ed? "Salvar alterações" : "Salvar registro";
+  document.getElementById("cancelEdit").hidden=!ed; document.getElementById("delBtn").hidden=!ed;
+}
+
+/* ---------- Registros ---------- */
+function renderRegistros(){
+  const regs=campRegs(S.camp);
+  document.getElementById("tabBadge").textContent=regs.length;
+  document.getElementById("regCount").textContent=regs.length+" registros";
+  if(S.view!=="registros") return;
+  const q=norm(document.getElementById("regFilter").value), box=document.getElementById("regList");
+  if(!regs.length){ box.innerHTML=`<p class="empty">Nenhum registro nesta campanha ainda.</p>`; return; }
+  const f=regs.filter(r=>{ const e=espOf(r); return !q||norm(espLabel(e)).includes(q)||norm(e.cientifico).includes(q)||norm(r.setor).includes(q); });
+  const groups={}; f.forEach(r=>{ (groups[r.setor]=groups[r.setor]||[]).push(r); });
+  box.innerHTML=Object.keys(groups).sort((a,b)=>a.localeCompare(b,"pt-BR")).map(k=>`<div style="margin-top:12px"><h3>${esc(k)} · ${groups[k].length}</h3><div class="list">`+
+    groups[k].sort((a,b)=>(b.criadoEm||"").localeCompare(a.criadoEm||"")).map(r=>{ const e=espOf(r); const nf=(r.fotos||[]).length;
+      return `<div class="item">${nf?`<img class="mini" alt="" data-thumbof="${esc(r.fotos[0])}">`:""}<div class="txt"><div class="nm">${esc(espLabel(e))}</div><div class="meta"><span class="tag t-ink">${esc(r.classe==="Presente (s/ contagem)"?"Presente":r.classe)}${typeof r.contagem==="number"&&r.classe!=="Ausente"?" ("+r.contagem+")":""}</span>${r.acao&&r.acao!=="Manter"?`<span class="tag ${r.acao==="Avaliar"?"t-ex":"t-inv"}">${esc(r.acao)}</span>`:""}${origTag(e.origem)}${nf?`<span class="hint">${nf} foto${nf>1?"s":""}</span>`:""}<span class="hint">${brDate(r.data)}</span></div>${r.obs?`<div class="hint" style="margin-top:3px">${esc(r.obs)}</div>`:""}</div><button type="button" class="btn small" data-edit="${esc(r.id)}">Abrir</button></div>`; }).join("")+`</div></div>`).join("");
+  box.querySelectorAll("img[data-thumbof]").forEach(async img=>{ const id=img.dataset.thumbof; try{ const f=await Store.get("fotos",id); if(f) img.src=objUrl("t"+id,f.thumb); }catch(e){} });
+}
+
+/* ---------- Resumo ---------- */
+function bar(c,t){ return `<div class="bar" role="img" aria-label="Composição por origem">`+ORIGENS.map(o=>c[o]?`<span style="width:${100*c[o]/t}%;background:${ORIG_COLOR[o]}"></span>`:"").join("")+`</div>`; }
+function legend(c,t){ return `<div class="legend">`+ORIGENS.map(o=>`<span><i style="background:${ORIG_COLOR[o]}"></i>${ORIG_SHORT[o][0]} ${c[o]} (${pct(c[o],t)})</span>`).join("")+`</div>`; }
+function renderResumo(){
+  if(S.view!=="resumo") return;
+  const body=document.getElementById("resumoBody");
+  if(!S.camp){ body.innerHTML=`<div class="card"><p class="empty">Crie uma campanha para ver o resumo.</p></div>`; return; }
+  const agg=Array.from(aggregate(S.camp).values()), pres=agg.filter(a=>a.classe!=="Ausente"), c=originCounts(pres), n=pres.length;
+  const base=baselinePresent(), cb=originCounts(base), nb=base.length, baseIds=new Set(base.map(e=>e.id));
+  const checked=new Set(agg.filter(a=>a.especieId).map(a=>a.especieId)), naoVerif=base.filter(e=>!checked.has(e.id));
+  const saidas=agg.filter(a=>a.classe==="Ausente"&&a.especieId&&baseIds.has(a.especieId)), novas=pres.filter(a=>!a.especieId||!baseIds.has(a.especieId));
+  const acoes=agg.filter(a=>a.acoes.length), invPres=pres.filter(a=>a.invasora==="Sim").length;
+  const sm={}; campRegs(S.camp).forEach(r=>{ if(r.classe==="Ausente") return; sm[r.setor]=sm[r.setor]||new Map(); sm[r.setor].set(r.especieId||norm(r.nome), espOf(r).origem); });
+  const rows=Object.keys(sm).sort((a,b)=>a.localeCompare(b,"pt-BR")).map(s=>{ const v=Array.from(sm[s].values()); return `<tr><td>${esc(s)}</td><td class="num">${v.length}</td><td class="num">${pct(v.filter(o=>o==="Nativa Mata Atlântica").length,v.length)}</td><td class="num">${pct(v.filter(o=>o==="Exótica").length,v.length)}</td></tr>`; }).join("");
+  body.innerHTML=`
+  <div class="card">
+    <div class="row"><h2 class="grow">Riqueza em ${esc(S.camp)}</h2><span class="hint">nº de espécies</span></div>
+    <div class="tiles">
+      <div class="tile"><div class="n">${n}</div><div class="k">espécies presentes</div></div>
+      <div class="tile"><div class="n" style="color:var(--ma)">${pct(c["Nativa Mata Atlântica"],n)}</div><div class="k">nativas da Mata Atlântica</div></div>
+      <div class="tile"><div class="n" style="color:var(--ex)">${pct(c["Exótica"],n)}</div><div class="k">exóticas</div></div>
+      <div class="tile"><div class="n" style="color:var(--inv)">${invPres}</div><div class="k">invasoras presentes</div></div>
+    </div>
+    ${n?bar(c,n)+legend(c,n):`<p class="empty">Ainda sem espécies presentes registradas.</p>`}
+    ${naoVerif.length?`<div class="notice">${naoVerif.length} das ${nb} espécies presentes em ${BASELINE} ainda não foram verificadas nesta campanha. Os percentuais só se comparam com a referência quando a campanha estiver completa.</div>`:(n?`<div class="notice ok">Todas as espécies presentes em ${BASELINE} foram verificadas.</div>`:"")}
+  </div>
+  <div class="card"><h2>Referência: ${BASELINE}</h2><p class="hint" style="margin:0">Recalculada a partir da lista de espécies da planilha (${nb} presentes).</p>${bar(cb,nb)+legend(cb,nb)}</div>
+  <div class="card"><h2>Mudanças desde ${BASELINE}</h2>
+    <div class="tiles"><div class="tile"><div class="n">${saidas.length}</div><div class="k">saíram</div></div><div class="tile"><div class="n">${novas.length}</div><div class="k">entraram ou reapareceram</div></div></div>
+    ${saidas.length?`<div><h3>Saíram</h3><p style="margin:4px 0 0">${saidas.map(a=>esc(a.nome)).join(", ")}</p></div>`:""}
+    ${novas.length?`<div><h3>Entraram</h3><p style="margin:4px 0 0">${novas.map(a=>esc(a.nome)+" ("+(ORIG_SHORT[a.origem]||ORIG_SHORT["Não identificada"])[0]+")").join(", ")}</p></div>`:""}
+  </div>
+  <div class="card"><h2>Por local</h2>${rows?`<div class="scroll"><table><thead><tr><th>Local</th><th class="num">Espécies</th><th class="num">Nativas MA</th><th class="num">Exóticas</th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="empty">Sem registros por local ainda.</p>`}</div>
+  <div class="card"><h2>Indicadas para substituir, retirar ou avaliar</h2>${acoes.length?`<div class="list">`+acoes.map(a=>`<div class="item"><div class="txt"><div class="nm">${esc(a.nome)}</div><div class="meta">${a.acoes.map(x=>`<span class="tag ${x==="Avaliar"?"t-ex":"t-inv"}">${esc(x)}</span>`).join("")}<span class="hint">${esc(a.setores)}</span></div></div></div>`).join("")+`</div>`:`<p class="empty">Nenhuma indicação nesta campanha.</p>`}</div>`;
+}
+
+/* ---------- Arquivos: .zip sem compressão e salvamento no aparelho ---------- */
+const CRC_T=(()=>{ const t=new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c=c&1?0xEDB88320^(c>>>1):c>>>1; t[n]=c>>>0; } return t; })();
+function crc32(u8){ let c=0xFFFFFFFF; for(let i=0;i<u8.length;i++) c=CRC_T[(c^u8[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+async function makeZip(entries){
+  const enc=new TextEncoder(), parts=[], central=[]; let off=0;
+  const d=new Date(), dosT=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1), dosD=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();
+  for(const e of entries){
+    const name=enc.encode(e.name);
+    const data= typeof e.data==="string" ? enc.encode(e.data) : new Uint8Array(await e.data.arrayBuffer());
+    const crc=crc32(data);
+    const lh=new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0x0800,true); lh.setUint16(8,0,true);
+    lh.setUint16(10,dosT,true); lh.setUint16(12,dosD,true); lh.setUint32(14,crc,true); lh.setUint32(18,data.length,true); lh.setUint32(22,data.length,true);
+    lh.setUint16(26,name.length,true); lh.setUint16(28,0,true);
+    parts.push(lh.buffer,name,data);
+    const ch=new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true); ch.setUint16(8,0x0800,true); ch.setUint16(10,0,true);
+    ch.setUint16(12,dosT,true); ch.setUint16(14,dosD,true); ch.setUint32(16,crc,true); ch.setUint32(20,data.length,true); ch.setUint32(24,data.length,true);
+    ch.setUint16(28,name.length,true); ch.setUint32(42,off,true);
+    central.push(ch.buffer,name);
+    off+=30+name.length+data.length;
+  }
+  const cdSize=central.reduce((s,b)=>s+(b.byteLength!==undefined?b.byteLength:b.length),0);
+  const end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true); end.setUint16(8,entries.length,true); end.setUint16(10,entries.length,true); end.setUint32(12,cdSize,true); end.setUint32(16,off,true);
+  return new Blob(parts.concat(central,[end.buffer]),{type:"application/zip"});
+}
+/* No celular abre o menu de compartilhar (Salvar em Arquivos, Drive, WhatsApp); no computador baixa direto. */
+async function saveFile(blob,filename){
+  const mobile=window.matchMedia&&matchMedia("(pointer: coarse)").matches;
+  if(mobile && navigator.canShare){
+    try{ const file=new File([blob],filename,{type:blob.type||"application/octet-stream"}); if(navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:filename}); return "shared"; } }
+    catch(e){ if(e&&e.name==="AbortError") return "cancel"; }
+  }
+  const u=URL.createObjectURL(blob), a=document.createElement("a"); a.href=u; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),60000);
+  return "downloaded";
+}
+
+/* ---------- Exportar ---------- */
+function csvCell(v){ const s=v==null?"":String(v); return /[";\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+function exportData(){
+  const agg=aggregate(S.camp), byEsp=new Map(); agg.forEach(a=>{ if(a.especieId) byEsp.set(a.especieId,a); });
+  const cat=CATALOGO.slice().sort((a,b)=>a.linha-b.linha), first=cat[0].linha, last=cat[cat.length-1].linha;
+  const coluna=cat.map(e=>{ const a=byEsp.get(e.id); return a?a.classe:""; }).join("\n");
+  const catIds=new Set(CATALOGO.map(e=>e.id));
+  const novas=Array.from(agg.values()).filter(a=>!a.especieId||!catIds.has(a.especieId));
+  const novasTsv=novas.map(a=>[a.nome,a.cientifico,"",a.origem,a.invasora||"A verificar","",a.setores,a.classe].join("\t")).join("\n");
+  const acoes=Array.from(agg.values()).filter(a=>a.acoes.length).map(a=>[a.nome,a.cientifico,a.setores,a.acoes.join("; ")].join("\t")).join("\n");
+  const regs=campRegs(S.camp).slice().sort((a,b)=>(a.setor||"").localeCompare(b.setor||"","pt-BR")||espLabel(espOf(a)).localeCompare(espLabel(espOf(b)),"pt-BR"));
+  const head=["campanha","data","local","nome_popular","nome_cientifico","origem","invasora","classe","contagem","substituir","observacao","fotos"];
+  const csv=[head.join(";")].concat(regs.map(r=>{ const e=espOf(r); return [r.campanha,brDate(r.data),r.setor,espLabel(e),e.cientifico||"",e.origem||"",e.invasora||"",r.classe,typeof r.contagem==="number"?r.contagem:"",r.acao||"",r.obs||"",(r.fotos||[]).map((_,i)=>photoName(r,i)).join(", ")].map(csvCell).join(";"); })).join("\n");
+  const nFotos=regs.reduce((s,r)=>s+(r.fotos||[]).length,0);
+  return {coluna,first,last,novasTsv,novasN:novas.length,acoes,csv,regs,nRegs:regs.length,nFotos};
+}
+function renderExportar(){
+  if(S.view!=="exportar") return;
+  const b=document.getElementById("exportBody");
+  if(!S.camp){ b.innerHTML=`<div class="card"><p class="empty">Crie uma campanha primeiro.</p></div>`; return; }
+  const x=exportData(); S._exp=x;
+  b.innerHTML=`
+  <div class="card">
+    <h2>Baixar tudo de ${esc(S.camp)}</h2>
+    <p class="hint" style="margin:0">Um arquivo .zip com ${x.nFotos} foto${x.nFotos===1?"":"s"} já identificada${x.nFotos===1?"":"s"} (pasta “fotos”), a tabela de registros e os textos prontos para colar na planilha. As fotos são nomeadas por data, local e planta.</p>
+    <button class="btn primary big" type="button" id="dlZip"${x.nRegs?"":" disabled"}>Baixar pacote da campanha</button>
+    <p class="hint" id="dlState" style="margin:0"></p>
+  </div>
+  <div class="card">
+    <h2>Colar na aba “Espécies e campanhas”</h2>
+    <p class="hint" style="margin:0">Uma classe por linha, na ordem do cadastro. Clique na célula da coluna ${esc(S.camp)} na linha ${x.first} e cole. Espécies não verificadas ficam em branco.</p>
+    <button class="btn" type="button" data-copy="coluna">Copiar coluna (linhas ${x.first} a ${x.last})</button>
+  </div>
+  <div class="card">
+    <h2>Espécies fora do cadastro</h2>
+    ${x.novasN?`<p class="hint" style="margin:0">${x.novasN} planta(s). Cole a partir da coluna B, abaixo da linha ${x.last}, e complete família, hábito e fonte da origem.</p><pre>${esc(x.novasTsv)}</pre><button class="btn" type="button" data-copy="novas">Copiar espécies novas</button>`:`<p class="empty">Nenhuma nesta campanha.</p>`}
+  </div>
+  <div class="card">
+    <h2>Para a aba “Plano de ação”</h2>
+    ${x.acoes?`<p class="hint" style="margin:0">Plantas indicadas em campo para substituir, retirar ou avaliar, com os locais.</p><pre>${esc(x.acoes)}</pre><button class="btn" type="button" data-copy="acoes">Copiar ações</button>`:`<p class="empty">Nenhuma indicação nesta campanha.</p>`}
+  </div>
+  <div class="card">
+    <h2>Espaço no aparelho</h2>
+    <p class="hint" style="margin:0" id="spaceTxt">Calculando…</p>
+    <p class="hint" style="margin:0">Os dados ficam só neste aparelho e neste navegador; cada pessoa que usar o caderno tem os próprios registros. Limpar os dados do navegador apaga tudo, então baixe o pacote ao fim de cada dia de campo. Depois de salvar as fotos na pasta, você pode liberar espaço.</p>
+    <button class="btn danger" type="button" id="freeSpace"${x.nFotos?"":" disabled"}>Apagar fotos desta campanha do aparelho</button>
+  </div>`;
+  (async()=>{ let t=x.nFotos+" fotos nesta campanha."; try{ if(navigator.storage&&navigator.storage.estimate){ const e=await navigator.storage.estimate(); t+=" Em uso: "+mb(e.usage||0)+(e.quota?" de "+mb(e.quota)+" disponíveis.":"."); } }catch(e){} const el=document.getElementById("spaceTxt"); if(el) el.textContent=t; })();
+}
+async function downloadZip(){
+  const st=document.getElementById("dlState"), btn=document.getElementById("dlZip");
+  btn.disabled=true; st.textContent="Montando o pacote…";
+  try{
+    const x=exportData(), entries=[]; let k=0;
+    for(const r of x.regs){ for(let i=0;i<(r.fotos||[]).length;i++){ const f=await Store.get("fotos",r.fotos[i]); if(f&&f.stamped){ entries.push({name:"fotos/"+photoName(r,i),data:f.stamped}); k++; st.textContent="Montando o pacote… "+k+"/"+x.nFotos+" fotos"; } } }
+    entries.push({name:"registros_"+slug(S.camp)+".csv",data:"\ufeff"+x.csv});
+    entries.push({name:"colar_coluna_"+slug(S.camp)+".txt",data:x.coluna});
+    if(x.novasN) entries.push({name:"especies_novas.txt",data:x.novasTsv});
+    if(x.acoes) entries.push({name:"acoes_plano.txt",data:x.acoes});
+    const blob=await makeZip(entries);
+    const res=await saveFile(blob,"PL_campo_"+slug(S.camp)+"_"+today()+".zip");
+    st.textContent = res==="cancel" ? "Envio cancelado." : "Pacote gerado com "+k+" foto"+(k===1?"":"s")+" ("+mb(blob.size)+").";
+  }catch(e){ st.textContent="Não foi possível gerar o pacote. Tente de novo."; }
+  finally{ btn.disabled=false; }
+}
+async function freeSpace(){
+  confirmBox("Apagar as fotos desta campanha do aparelho?","Os registros continuam. Faça isso só depois de conferir que o pacote baixado está salvo na pasta.","Apagar fotos",async()=>{
+    for(const r of campRegs(S.camp)){ if(!(r.fotos||[]).length) continue; for(const id of r.fotos) await Store.del("fotos",id); const nr=Object.assign({},r,{fotos:[],fotosApagadas:(r.fotosApagadas||0)+r.fotos.length}); await Store.put("registros",nr); S.registros.set(nr.id,nr); }
+    toast("Fotos apagadas do aparelho."); renderAll(); refreshStatus();
+  });
+}
+
+function renderAll(){ renderCamp(); renderRegistrar(); renderRegistros(); renderResumo(); renderExportar(); }
+
+/* ---------- Formulário ---------- */
+function resetForm(){
+  S.form.novas.forEach(f=>{ const u=urlCache.get("n"+f.key); if(u){ URL.revokeObjectURL(u); urlCache.delete("n"+f.key); } });
+  S.form={esp:null,classe:null,acao:null,editId:null,novas:[],existentes:[],removidas:[]};
+  document.getElementById("spSearch").value=""; document.getElementById("contagem").value=""; document.getElementById("obs").value="";
+  renderRegistrar();
+}
+function pickEsp(id){ const e=S.especies.get(id); if(!e) return; S.form.esp=e; if(!S.form.editId) S.form.acao=defaultAcao(e); renderRegistrar(); }
+async function onPhotos(ev){
+  const files=Array.from(ev.target.files||[]); if(!files.length) return;
+  toast(files.length>1?"Preparando "+files.length+" fotos…":"Preparando foto…");
+  for(const f of files){
+    try{ const orig=await resize(f,2048,0.9), thumb=await resize(orig,240,0.75); S.form.novas.push({key:uid(),orig,thumb}); }
+    catch(e){ toast("Não foi possível ler uma das imagens."); }
+  }
+  renderThumbs();
+}
+async function persistRegistro(rec,fotoIds){
+  rec.fotos=fotoIds;
+  await Store.put("registros",rec); S.registros.set(rec.id,rec);
+}
+async function onSave(){
+  if(!S.camp){ toast("Crie uma campanha primeiro."); newCampModal(); return; }
+  if(!S.setor){ toast("Escolha o local."); return; }
+  if(!S.form.esp){ toast("Escolha a planta."); document.getElementById("spSearch").focus(); return; }
+  const cnt=document.getElementById("contagem").value.trim(), contagem=cnt===""?null:Math.max(0,parseInt(cnt,10));
+  const classe=(contagem!=null&&!isNaN(contagem))?classify(contagem):S.form.classe;
+  if(!classe){ toast("Indique o número de indivíduos."); return; }
+  const btn=document.getElementById("saveBtn"); btn.disabled=true; btn.textContent="Salvando…";
+  try{
+    const e=S.form.esp, id=S.form.editId||uid(), prev=S.registros.get(id);
+    const rec={id,campanha:S.camp,data:document.getElementById("dataReg").value||today(),setor:S.setor,especieId:e.id,nome:espLabel(e),cientifico:e.cientifico||"",origem:e.origem||"Não identificada",
+      classe,contagem:(contagem!=null&&!isNaN(contagem))?contagem:null,acao:classe==="Ausente"?"":(S.form.acao||""),obs:document.getElementById("obs").value.trim(),
+      criadoEm:prev&&prev.criadoEm||new Date().toISOString(),editadoEm:prev?new Date().toISOString():null,fotosApagadas:prev&&prev.fotosApagadas||0};
+    const info={nome:espLabel(e),cientifico:e.cientifico||"",local:S.setor,data:brDate(rec.data)};
+    const keep=(prev&&prev.fotos||[]).filter(fid=>!S.form.removidas.includes(fid));
+    for(const fid of S.form.removidas) await Store.del("fotos",fid);
+    for(const fid of keep){ const f=await Store.get("fotos",fid); if(f){ f.stamped=await stamp(f.orig,info); await Store.put("fotos",f); } }
+    for(const n of S.form.novas){ const fid=uid(); const stamped=await stamp(n.orig,info); await Store.put("fotos",{id:fid,registroId:id,orig:n.orig,thumb:n.thumb,stamped,criadoEm:new Date().toISOString()}); keep.push(fid); }
+    await persistRegistro(rec,keep);
+    toast(prev?"Registro atualizado.":espLabel(e)+" registrada em "+S.setor+(keep.length?" com "+keep.length+" foto"+(keep.length>1?"s":""):"")+".");
+    resetForm(); refreshStatus();
+  }catch(err){ toast("Não foi possível salvar. Tente de novo."); }
+  finally{ btn.disabled=false; renderRegistrar(); }
+}
+async function markAusente(espId){
+  const e=S.especies.get(espId); if(!e||!S.setor) return; if(!S.camp){ newCampModal(); return; }
+  const rec={id:uid(),campanha:S.camp,data:document.getElementById("dataReg").value||today(),setor:S.setor,especieId:e.id,nome:espLabel(e),cientifico:e.cientifico||"",origem:e.origem||"Não identificada",classe:"Ausente",contagem:0,acao:"",obs:"",criadoEm:new Date().toISOString(),editadoEm:null,fotos:[]};
+  try{ await persistRegistro(rec,[]); toast(espLabel(e)+" marcada como ausente em "+S.setor+"."); renderAll(); }catch(err){ toast("Não foi possível salvar."); }
+}
+async function startEdit(id){
+  const r=S.registros.get(id); if(!r) return;
+  resetForm();
+  const ex=[]; for(const fid of (r.fotos||[])){ try{ const f=await Store.get("fotos",fid); if(f) ex.push(f); }catch(e){} }
+  S.form={esp:espOf(r).id?espOf(r):Object.assign({id:r.especieId},espOf(r)),classe:r.classe,acao:r.acao||null,editId:id,novas:[],existentes:ex,removidas:[]};
+  S.setor=r.setor; S.camp=r.campanha;
+  document.getElementById("contagem").value=(typeof r.contagem==="number"&&r.classe!=="Ausente")?r.contagem:"";
+  document.getElementById("obs").value=r.obs||""; document.getElementById("dataReg").value=r.data||today();
+  go("registrar");
+}
+async function deleteCurrent(){
+  const id=S.form.editId; if(!id) return;
+  confirmBox("Excluir este registro?","As fotos dele também saem do aparelho.","Excluir",async()=>{
+    const r=S.registros.get(id); for(const fid of (r&&r.fotos||[])) await Store.del("fotos",fid);
+    await Store.del("registros",id); S.registros.delete(id); resetForm(); toast("Registro excluído."); renderAll(); refreshStatus();
+  });
+}
+async function viewPhoto(fid){
+  const f=await Store.get("fotos",fid); if(!f) return;
+  const u=URL.createObjectURL(f.stamped||f.orig);
+  const r=S.registros.get(f.registroId), idx=r?(r.fotos||[]).indexOf(fid):0;
+  openModal(`<img class="full" alt="Foto com identificação" src="${u}"><div class="row"><button type="button" class="btn grow" id="mNo">Fechar</button><button type="button" class="btn primary grow" id="mSave">Salvar esta foto</button></div>`,()=>URL.revokeObjectURL(u));
+  document.getElementById("mNo").onclick=closeModal;
+  document.getElementById("mSave").onclick=()=>saveFile(f.stamped||f.orig, r?photoName(r,Math.max(0,idx)):"foto.jpg");
+}
+
+/* ---------- Modais ---------- */
+let onCloseModal=null;
+function openModal(html,onClose){ const m=document.getElementById("modal"); document.getElementById("modalCard").innerHTML=html; m.hidden=false; onCloseModal=onClose||null; const f=m.querySelector("input,select"); if(f) f.focus(); }
+function closeModal(){ document.getElementById("modal").hidden=true; if(onCloseModal){ onCloseModal(); onCloseModal=null; } }
+function confirmBox(title,msg,label,fn){
+  openModal(`<h2>${esc(title)}</h2><p class="hint" style="margin:0">${esc(msg)}</p><div class="row"><button type="button" class="btn grow" id="mNo">Voltar</button><button type="button" class="btn primary grow" id="mYes">${esc(label)}</button></div>`);
+  document.getElementById("mNo").onclick=closeModal; document.getElementById("mYes").onclick=()=>{ closeModal(); fn(); };
+}
+function newCampModal(){
+  const d=new Date(), meses=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"], sug=meses[d.getMonth()]+"/"+d.getFullYear();
+  openModal(`<h2>Nova campanha</h2><div class="field"><label class="lbl" for="mCamp">Nome, no formato das colunas da planilha (ex.: set/2026)</label><input type="text" id="mCamp" value="${sug}"></div><div class="row"><button type="button" class="btn grow" id="mNo">Cancelar</button><button type="button" class="btn primary grow" id="mYes">Criar</button></div>`);
+  document.getElementById("mNo").onclick=closeModal;
+  document.getElementById("mYes").onclick=async()=>{
+    const nome=document.getElementById("mCamp").value.trim(); if(!nome) return; closeModal();
+    if(!S.campanhas.some(c=>c.nome===nome)){ S.campanhas.push({nome,criadaEm:new Date().toISOString()}); await saveKv("campanhas",S.campanhas); toast("Campanha "+nome+" criada."); }
+    S.camp=nome; await saveKv("camp",nome); renderAll();
+  };
+}
+function newSetorModal(){
+  openModal(`<h2>Novo local</h2><div class="field"><label class="lbl" for="mSet">Nome do local</label><input type="text" id="mSet" placeholder="Ex.: Canteiro da recepção"><span class="hint">O local fica salvo e aparece nas próximas campanhas.</span></div><div class="row"><button type="button" class="btn grow" id="mNo">Cancelar</button><button type="button" class="btn primary grow" id="mYes">Adicionar</button></div>`);
+  document.getElementById("mNo").onclick=closeModal;
+  document.getElementById("mYes").onclick=async()=>{ const s=document.getElementById("mSet").value.trim(); if(!s) return; closeModal(); if(!S.setoresCfg.includes(s)){ S.setoresCfg.push(s); await saveKv("setores",S.setoresCfg); } S.setor=s; await saveKv("setor",s); renderSetores._done=false; renderAll(); };
+}
+function newSpModal(term){
+  openModal(`<h2>Planta fora do cadastro</h2>
+  <div class="field"><label class="lbl" for="mPop">Nome popular</label><input type="text" id="mPop" value="${esc(term)}"></div>
+  <div class="field"><label class="lbl" for="mCie">Nome científico, se souber</label><input type="text" id="mCie"></div>
+  <div class="two"><div class="field"><label class="lbl" for="mOri">Origem</label><select id="mOri">${ORIGENS.map(o=>`<option${o==="Não identificada"?" selected":""}>${o}</option>`).join("")}</select></div>
+  <div class="field"><label class="lbl" for="mInv">Invasora</label><select id="mInv"><option>A verificar</option><option>Sim</option><option>Não</option></select></div></div>
+  <div class="row"><button type="button" class="btn grow" id="mNo">Cancelar</button><button type="button" class="btn primary grow" id="mYes">Adicionar e usar</button></div>`);
+  document.getElementById("mNo").onclick=closeModal;
+  document.getElementById("mYes").onclick=async()=>{
+    const popular=document.getElementById("mPop").value.trim(), cientifico=document.getElementById("mCie").value.trim(); if(!popular&&!cientifico) return;
+    const doc={id:"n-"+uid(),popular,cientifico,familia:"",origem:document.getElementById("mOri").value,invasora:document.getElementById("mInv").value,habito:"",setores:S.setor||"",historico:{},nova:true};
+    closeModal(); S.especies.set(doc.id,doc); try{ await Store.put("especies",doc); }catch(e){} pickEsp(doc.id);
+  };
+}
+
+/* ---------- Navegação e eventos ---------- */
+function go(v){
+  S.view=v;
+  document.querySelectorAll(".view").forEach(s=>{ const on=s.id==="v-"+v; s.hidden=!on; s.style.display=on?"flex":""; });
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.view===v?"page":"false"));
+  window.scrollTo(0,0); renderAll();
+}
+document.addEventListener("click",ev=>{
+  const img=ev.target.closest("img[data-thumbof]"); if(img){ viewPhoto(img.dataset.thumbof); return; }
+  const t=ev.target.closest("button"); if(!t) return;
+  if(t.dataset.view){ go(t.dataset.view); return; }
+  if(t.dataset.setor!=null){ S.setor=t.dataset.setor; saveKv("setor",S.setor); renderRegistrar(); return; }
+  if(t.id==="addSetor"||t.id==="addSetor2"){ newSetorModal(); return; }
+  if(t.dataset.esp){ pickEsp(t.dataset.esp); window.scrollTo({top:0}); return; }
+  if(t.id==="spClear"){ S.form.esp=null; renderRegistrar(); document.getElementById("spSearch").focus(); return; }
+  if(t.id==="newSpBtn"){ newSpModal(document.getElementById("spSearch").value.trim()); return; }
+  if(t.dataset.classe){ S.form.classe=t.dataset.classe; document.getElementById("contagem").value=""; if(S.form.classe==="Ausente") S.form.acao=null; renderAb(); return; }
+  if(t.dataset.acao){ S.form.acao=S.form.acao===t.dataset.acao?null:t.dataset.acao; renderAb(); return; }
+  if(t.dataset.rmnew!=null){ S.form.novas.splice(+t.dataset.rmnew,1); renderThumbs(); return; }
+  if(t.dataset.rmold){ S.form.removidas.push(t.dataset.rmold); renderThumbs(); return; }
+  if(t.dataset.ausente){ markAusente(t.dataset.ausente); return; }
+  if(t.dataset.edit){ startEdit(t.dataset.edit); return; }
+  if(t.id==="saveBtn"){ onSave(); return; }
+  if(t.id==="cancelEdit"){ resetForm(); return; }
+  if(t.id==="delBtn"){ deleteCurrent(); return; }
+  if(t.id==="newCampBtn"){ newCampModal(); return; }
+  if(t.id==="dlZip"){ downloadZip(); return; }
+  if(t.id==="freeSpace"){ freeSpace(); return; }
+  if(t.dataset.copy){ const x=S._exp||exportData(); const txt={coluna:x.coluna,novas:x.novasTsv,acoes:x.acoes}[t.dataset.copy]||"";
+    navigator.clipboard.writeText(txt).then(()=>toast("Copiado. Cole na planilha."),()=>toast("O navegador não permitiu copiar. Use o arquivo do pacote .zip.")); }
+});
+document.getElementById("spSearch").addEventListener("input",renderSpPicker);
+document.getElementById("regFilter").addEventListener("input",renderRegistros);
+document.getElementById("contagem").addEventListener("input",ev=>{ const v=ev.target.value.trim(); S.form.classe=v===""?null:classify(parseInt(v,10)); renderAb(); });
+document.getElementById("campSel").addEventListener("change",ev=>{ S.camp=ev.target.value; saveKv("camp",S.camp); renderAll(); });
+document.getElementById("modal").addEventListener("click",ev=>{ if(ev.target.id==="modal") closeModal(); });
+document.addEventListener("keydown",ev=>{ if(ev.key==="Escape") closeModal(); });
+
+/* ---------- Início ---------- */
+if("serviceWorker" in navigator && location.protocol==="https:"){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
+document.getElementById("dataReg").value=today();
+renderAll();
+(async()=>{
+  const ok=await Store.init();
+  if(!ok){ document.getElementById("storageWarn").hidden=false; }
+  try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+  try{
+    const [regs,esp]=await Promise.all([Store.all("registros"),Store.all("especies")]);
+    (regs||[]).forEach(r=>S.registros.set(r.id,r)); (esp||[]).forEach(e=>S.especies.set(e.id,e));
+    const [camps,camp,setor,setores]=await Promise.all([Store.get("kv","campanhas"),Store.get("kv","camp"),Store.get("kv","setor"),Store.get("kv","setores")]);
+    S.campanhas=camps||[]; S.camp=camp||null; S.setor=setor||null; if(Array.isArray(setores)) S.setoresCfg=setores;
+  }catch(e){ document.getElementById("storageWarn").hidden=false; }
+  renderSetores._done=false; renderAll(); refreshStatus(); loadFonts();
+})();
+})();
+</script>
+</body>
+</html>
